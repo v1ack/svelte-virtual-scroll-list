@@ -4,10 +4,10 @@ Svelte implementation of vue library [vue-virtual-scroll-list](https://github.co
 
 ## Todo
 
--[x] virtual scroll
--[x] dispatch scroll events
--[ ] header footer slots
--[ ] jumps on add data to top
--[ ] change position
--[ ] examples
--[ ] npm
+- [x] virtual scroll
+- [x] dispatch scroll events
+- [ ] header footer slots
+- [ ] jumps on add data to top
+- [ ] change position
+- [ ] examples
+- [ ] npm
