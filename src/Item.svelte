@@ -2,7 +2,6 @@
     import {afterUpdate, createEventDispatcher, onDestroy, onMount} from "svelte"
 
     export let horizontal = false
-    export let height
     export let uniqueKey
 
     let resizeObserver
@@ -37,8 +36,8 @@
     }
 </script>
 
-<div bind:this={itemDiv} style="height: {height}px">
-    {uniqueKey} Item ({height}px)
+<div bind:this={itemDiv}>
+    <slot/>
 </div>
 <style>
     div {
