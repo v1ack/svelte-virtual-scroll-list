@@ -20,15 +20,17 @@ export function randomInteger(min, max) {
     return Math.floor(rand)
 }
 
-function* GeneratorID() {
+function* SequenceGenerator() {
     let i = 0
     while (true) {
         yield i++
     }
 }
 
-const generatorID = GeneratorID()
-export const getID = () => generatorID.next().value
+export function createSequenceGenerator() {
+    const sequenceGenerator = SequenceGenerator()
+    return () => sequenceGenerator.next().value
+}
 
 export function randomWord() {
     return lorem[randomInteger(0, lorem.length)]
@@ -38,4 +40,8 @@ export function randomString(min, max) {
     let s = []
     for (let i = 0; i < randomInteger(min, max); i++) s.push(randomWord())
     return s.join(" ")
+}
+
+export function asyncTimeout(time) {
+    return new Promise(resolve => setTimeout(resolve, time))
 }

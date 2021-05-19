@@ -1,11 +1,12 @@
 {
   "name": "svelte-virtual-scroll-list",
   "description": "Svelte lib for virtualizing lists",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "build": "rollup -c rollup/rollup.config.js",
+    "build:dev": "rollup -c rollup/rollup.config.dev.js",
     "dev": "rollup -c rollup/rollup.config.dev.js -w",
-    "start": "sirv public --no-clear"
+    "start:dev": "sirv public --no-clear"
   },
   "repository": {
     "type": "git",

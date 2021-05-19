@@ -3,6 +3,7 @@
 
     export let horizontal = false
     export let uniqueKey
+    export let type = "item"
 
     let resizeObserver
     let itemDiv
@@ -32,7 +33,7 @@
 
     // tell parent current size identify by unqiue key
     function dispatchSizeChange() {
-        dispatch("resize", {id: uniqueKey, size: getCurrentSize()})
+        dispatch("resize", {id: uniqueKey, size: getCurrentSize(), type})
     }
 </script>
 

@@ -3,19 +3,19 @@
     import Item from "./Item.svelte"
     import {createEventDispatcher, onDestroy, onMount} from "svelte"
 
-    export let dataKey
-    export let dataSources
+    export let key = "id"
+    export let data
     export let keeps = 30
     export let estimateSize = 50
-    export let direction = "vertical"
+    export let isHorizontal = false
+    export let start = 0
     export let offset = 0
     export let pageMode = false
-    export let topThreshold = 10
-    export let bottomThreshold = 10
+    export let topThreshold = 0
+    export let bottomThreshold = 0
 
     let displayItems = []
     let paddingStyle
-    let isHorizontal = direction === "horizontal"
     let directionKey = isHorizontal ? "scrollLeft" : "scrollTop"
     let range = null
     let virtual = new Virtual({
@@ -31,6 +31,12 @@
     const dispatch = createEventDispatcher()
 
     onMount(() => {
+        if (start) {
+            scrollToIndex(start)
+        } else if (offset) {
+            scrollToOffset(offset)
+        }
+
         if (pageMode) {
             updatePageModeFront()
 
@@ -48,17 +54,26 @@
     })
 
     function getUniqueIdFromDataSources() {
-        return dataSources.map((dataSource) => dataSource[dataKey])
+        return data.map((dataSource) => dataSource[key])
     }
 
-    function onItemResized({id, size}) {
-        virtual.saveSize(id, size)
+    function onItemResized({id, size, type}) {
+        if (type === "item")
+            virtual.saveSize(id, size)
+        else {
+            if (id === "header")
+                virtual.updateParam("slotHeaderSize", size)
+            else if (id === "footer")
+                virtual.updateParam("slotFooterSize", size)
+
+            virtual.handleSlotSizeChange()
+        }
     }
 
     function onRangeChanged(range_) {
         range = range_
         paddingStyle = paddingStyle = isHorizontal ? `0px ${range.padBehind}px 0px ${range.padFront}px` : `${range.padFront}px 0px ${range.padBehind}px`
-        displayItems = dataSources.slice(range.start, range.end + 1)
+        displayItems = data.slice(range.start, range.end + 1)
     }
 
     function onScroll(event) {
@@ -75,7 +90,7 @@
         emitEvent(offset, clientSize, scrollSize, event)
     }
 
-    function getOffset() {
+    export function getOffset() {
         if (pageMode) {
             return document.documentElement[directionKey] || document.body[directionKey]
         } else {
@@ -83,7 +98,7 @@
         }
     }
 
-    function getClientSize() {
+    export function getClientSize() {
         const key = isHorizontal ? "clientWidth" : "clientHeight"
         if (pageMode) {
             return document.documentElement[key] || document.body[key]
@@ -92,7 +107,7 @@
         }
     }
 
-    function getScrollSize() {
+    export function getScrollSize() {
         const key = isHorizontal ? "scrollWidth" : "scrollHeight"
         if (pageMode) {
             return document.documentElement[key] || document.body[key]
@@ -101,7 +116,7 @@
         }
     }
 
-    function updatePageModeFront() {
+    export function updatePageModeFront() {
         if (root) {
             const rect = root.getBoundingClientRect()
             const {defaultView} = root.ownerDocument
@@ -113,14 +128,14 @@
     function emitEvent(offset, clientSize, scrollSize, event) {
         dispatch("scroll", {event, range: virtual.getRange()})
 
-        if (virtual.isFront() && !!dataSources.length && (offset - topThreshold <= 0)) {
-            dispatch("totop")
+        if (virtual.isFront() && !!data.length && (offset - topThreshold <= 0)) {
+            dispatch("top")
         } else if (virtual.isBehind() && (offset + clientSize + bottomThreshold >= scrollSize)) {
-            dispatch("tobottom")
+            dispatch("bottom")
         }
     }
 
-    function scrollToOffset(offset) {
+    export function scrollToOffset(offset) {
         if (pageMode) {
             document.body[directionKey] = offset
             document.documentElement[directionKey] = offset
@@ -129,9 +144,9 @@
         }
     }
 
-    function scrollToIndex(index) {
+    export function scrollToIndex(index) {
         // scroll to bottom
-        if (index >= dataSources.length - 1) {
+        if (index >= data.length - 1) {
             scrollToBottom()
         } else {
             const offset = virtual.getOffset(index)
@@ -158,7 +173,13 @@
         }
     }
 
-    $: handleDataSourcesChange(dataSources)
+    $: scrollToOffset(offset)
+    $: scrollToIndex(start)
+    $: {
+        virtual.updateParam("keeps", keeps)
+        virtual.handleSlotSizeChange()
+    }
+    $: handleDataSourcesChange(data)
 
     async function handleDataSourcesChange(dataSources) {
         // TODO: fix jump on top added data
@@ -170,13 +191,27 @@
 </script>
 
 <div bind:this={root} on:scroll={onScroll} style="overflow-y: auto; height: inherit">
+    {#if $$slots.header}
+        <Item on:resize={onItemResized} type="slot" uniqueKey="header">
+            <slot name="header"/>
+        </Item>
+    {/if}
     <div style="padding: {paddingStyle}">
         {#each displayItems as data}
-            <Item on:resize={(e) => onItemResized(e.detail)} uniqueKey={data[dataKey]} horizontal={isHorizontal}>
+            <Item
+                    on:resize={(e) => onItemResized(e.detail)}
+                    uniqueKey={data[key]}
+                    horizontal={isHorizontal}
+                    type="item">
                 <slot {data}/>
             </Item>
         {/each}
     </div>
+    {#if $$slots.footer}
+        <Item on:resize={onItemResized} type="slot" uniqueKey="footer">
+            <slot name="footer"/>
+        </Item>
+    {/if}
     <div bind:this={shepherd} class="shepherd"
          style="width: {isHorizontal ? '0px' : '100%'};height: {isHorizontal ? '100%' : '0px'}"></div>
 </div>

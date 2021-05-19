@@ -1,65 +1,52 @@
 <script>
-    import VirtualScroll from "../src/VirtualScroll.svelte"
-    import {getID, randomInteger, randomString} from "./mock"
-    import {tick} from "svelte"
-    import TestItem from "./TestItem.svelte"
+    import SimpleList from "./SimpleList.svelte"
+    import InfiniteList from "./InfiniteList.svelte"
+    import PageList from "./PageList.svelte"
+    import ChangeableData from "./ChangeableData.svelte"
 
-    let items = []
-    addItems(true, 1000)
+    const pages = [
+        {name: "Simple list", component: SimpleList},
+        {name: "Infinite list", component: InfiniteList},
+        {name: "Page mode", component: PageList},
+        {name: "ChangeableData", component: ChangeableData},
+    ]
 
-    let list
-    let notifications = {}
-
-    function addItems(top = true, count = 10) {
-        let new_items = []
-        for (let i = 0; i < count; i++)
-            new_items.push({uniqueKey: getID(), text: randomString(3, 200), height: randomInteger(20, 60)})
-        if (top)
-            items.unshift(...new_items)
-        else items.push(...new_items)
-        items = items
-    }
-
-    function addNotification(e) {
-        const id = getID()
-        notifications[id] = e
-        setTimeout(() => {
-            delete notifications[id]
-            notifications = notifications
-        }, 5000)
-    }
+    let currentPage = pages[0]
 </script>
 
 <main>
-    <VirtualScroll
-            bind:this={list}
-            dataKey="uniqueKey"
-            dataSources={items}
-            let:data
-            on:tobottom={()=>addNotification("bottom")}
-            on:totop={()=>addNotification("top")}
-    >
-        <TestItem {data}/>
-    </VirtualScroll>
-    <button on:click={() => addItems()}>Add 10 to top</button>
-    <button on:click={() => addItems(false)}>Add 10 to bottom</button>
-    <button on:click={() => list.scrollToBottom()}>To bottom</button>
-    <button on:click={async () => {
-        addItems(false, 1)
-        await tick()
-        list.scrollToBottom()
-    }}>Add 1 and scroll to bottom
-    </button>
-    {#each Object.values(notifications) as notification}
-        <p>{notification}</p>
-    {/each}
+    <h1>svelte-virtual-scroll-list example</h1>
+    <div class="page-selector-container">
+        {#each pages as page}
+        <span
+                class="page-selector"
+                on:click={() => currentPage = page}
+                class:active={currentPage.name === page.name}
+        >{page.name}</span>
+        {/each}
+    </div>
+    <svelte:component this={currentPage.component}/>
 </main>
 
 <style>
     main {
         padding: 1em;
         margin: 0 auto;
-        width: 900px;
-        height: 300px;
+        max-width: 900px;
+    }
+
+    .page-selector-container {
+        margin-bottom: 20px;
+    }
+
+    .page-selector {
+        margin-right: 10px;
+        text-decoration: underline;
+        cursor: pointer;
+        color: blue;
+    }
+
+    .page-selector.active {
+        font-weight: bold;
     }
 </style>
