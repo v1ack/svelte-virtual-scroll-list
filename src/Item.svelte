@@ -39,8 +39,3 @@
 <div bind:this={itemDiv}>
     <slot/>
 </div>
-<style>
-    div {
-        border: 1px solid gray;
-    }
-</style>
