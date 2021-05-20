@@ -1,5 +1,6 @@
 <script>
     import SimpleList from "./SimpleList.svelte"
+    import SimpleListStore from "./SimpleListStore.svelte"
     import InfiniteList from "./InfiniteList.svelte"
     import PageList from "./PageList.svelte"
     import ChangeableData from "./ChangeableData.svelte"
@@ -9,6 +10,7 @@
         {name: "Infinite list", component: InfiniteList},
         {name: "Page mode", component: PageList},
         {name: "ChangeableData", component: ChangeableData},
+        {name: "SimpleListStore", component: SimpleListStore},
     ]
 
     let currentPage = pages[0]

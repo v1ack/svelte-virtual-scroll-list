@@ -13,7 +13,18 @@ const CALC_TYPE = {
 }
 const LEADING_BUFFER = 2
 
-export default class Virtual {
+export default class {
+    param
+    callUpdate
+    firstRangeTotalSize = 0
+    firstRangeAverageSize = 0
+    lastCalcIndex = 0
+    fixedSizeValue = 0
+    calcType = CALC_TYPE.INIT
+    offset = 0
+    direction = ""
+    range
+
     constructor(param, callUpdate) {
         this.init(param, callUpdate)
     }

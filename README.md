@@ -4,7 +4,9 @@ Svelte implementation of vue library [vue-virtual-scroll-list](https://github.co
 
 Virtualized scrolling for big lists
 
-Online demo: [Svelte repl](https://ru.svelte.dev/repl/eae82aab17b04420885851d58de50a2e?version=3.38.2)
+Online demo: [https://v1ack.github.io/svelte-virtual-scroll-list/](https://v1ack.github.io/svelte-virtual-scroll-list/)
+
+[Simple example in Svelte REPL](https://ru.svelte.dev/repl/eae82aab17b04420885851d58de50a2e?version=3.38.2)
 
 ## Todo
 

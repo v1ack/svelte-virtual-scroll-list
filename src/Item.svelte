@@ -13,9 +13,7 @@
 
     onMount(() => {
         if (typeof ResizeObserver !== "undefined") {
-            resizeObserver = new ResizeObserver(() => {
-                dispatchSizeChange()
-            })
+            resizeObserver = new ResizeObserver(dispatchSizeChange)
             resizeObserver.observe(itemDiv)
         }
     })
@@ -27,13 +25,8 @@
         }
     })
 
-    function getCurrentSize() {
-        return itemDiv ? itemDiv[shapeKey] : 0
-    }
-
-    // tell parent current size identify by unqiue key
     function dispatchSizeChange() {
-        dispatch("resize", {id: uniqueKey, size: getCurrentSize(), type})
+        dispatch("resize", {id: uniqueKey, size: itemDiv ? itemDiv[shapeKey] : 0, type})
     }
 </script>
 

@@ -1,9 +1,10 @@
 <script>
-    export let data
+    export let uniqueKey
+    export let height
 </script>
 
-<div style="height: {data.height}px">
-    {data.uniqueKey} Item ({data.height}px)
+<div style="height: {height}px">
+    {uniqueKey} Item ({height}px)
 </div>
 
 <style>

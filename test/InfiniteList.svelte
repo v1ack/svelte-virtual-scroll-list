@@ -1,23 +1,29 @@
 <script>
     import {tick} from "svelte"
     import VirtualScroll from "../src/VirtualScroll.svelte"
-    import {asyncTimeout, createSequenceGenerator, randomInteger, randomString} from "./mock"
+    import {asyncTimeout, createSequenceGenerator, randomInteger} from "./mock"
     import TestItem from "./TestItem.svelte"
 
     const getItemId = createSequenceGenerator()
 
     let items = []
-    addItems(true, 70)
+    addItems(false, 70)
 
     let list
 
     function addItems(top = true, count = 10) {
         let new_items = []
         for (let i = 0; i < count; i++)
-            new_items.push({uniqueKey: getItemId(), text: randomString(3, 200), height: randomInteger(20, 60)})
-        if (top)
+            new_items.push({uniqueKey: getItemId(), height: randomInteger(20, 60)})
+        if (top) {
             items = [...new_items, ...items]
-        else
+
+            tick().then(() => {
+                const sids = new_items.map(i => i.uniqueKey)
+                const offset = sids.reduce((previousValue, currentSid) => previousValue + list.getSize(currentSid), 0)
+                list.scrollToOffset(offset)
+            })
+        } else
             items = [...items, ...new_items]
     }
 
@@ -40,7 +46,7 @@
         <div slot="header">
             Loading...
         </div>
-        <TestItem {data}/>
+        <TestItem {...data}/>
         <div slot="footer">
             loading...
         </div>

@@ -1,5 +1,5 @@
 <script>
-    import Virtual from "./vue/virtual"
+    import Virtual from "./virtual"
     import Item from "./Item.svelte"
     import {createEventDispatcher, onDestroy, onMount} from "svelte"
 
@@ -29,6 +29,83 @@
     let root
     let shepherd
     const dispatch = createEventDispatcher()
+
+    export function getSize(id) {
+        return virtual.sizes.get(id)
+    }
+
+    export function getSizes() {
+        return virtual.sizes.size
+    }
+
+    export function getOffset() {
+        if (pageMode) {
+            return document.documentElement[directionKey] || document.body[directionKey]
+        } else {
+            return root ? Math.ceil(root[directionKey]) : 0
+        }
+    }
+
+    export function getClientSize() {
+        const key = isHorizontal ? "clientWidth" : "clientHeight"
+        if (pageMode) {
+            return document.documentElement[key] || document.body[key]
+        } else {
+            return root ? Math.ceil(root[key]) : 0
+        }
+    }
+
+    export function getScrollSize() {
+        const key = isHorizontal ? "scrollWidth" : "scrollHeight"
+        if (pageMode) {
+            return document.documentElement[key] || document.body[key]
+        } else {
+            return root ? Math.ceil(root[key]) : 0
+        }
+    }
+
+    export function updatePageModeFront() {
+        if (root) {
+            const rect = root.getBoundingClientRect()
+            const {defaultView} = root.ownerDocument
+            const offsetFront = isHorizontal ? (rect.left + defaultView.pageXOffset) : (rect.top + defaultView.pageYOffset)
+            virtual.updateParam("slotHeaderSize", offsetFront)
+        }
+    }
+
+    export function scrollToOffset(offset) {
+        if (pageMode) {
+            document.body[directionKey] = offset
+            document.documentElement[directionKey] = offset
+        } else if (root) {
+            root[directionKey] = offset
+        }
+    }
+
+    export function scrollToIndex(index) {
+        if (index >= data.length - 1) {
+            scrollToBottom()
+        } else {
+            const offset = virtual.getOffset(index)
+            scrollToOffset(offset)
+        }
+    }
+
+    export function scrollToBottom() {
+        if (shepherd) {
+            const offset = shepherd[isHorizontal ? "offsetLeft" : "offsetTop"]
+            scrollToOffset(offset)
+
+            // check if it's really scrolled to the bottom
+            // maybe list doesn't render and calculate to last range
+            // so we need retry in next event loop until it really at bottom
+            setTimeout(() => {
+                if (getOffset() + getClientSize() < getScrollSize()) {
+                    scrollToBottom()
+                }
+            }, 3)
+        }
+    }
 
     onMount(() => {
         if (start) {
@@ -90,41 +167,6 @@
         emitEvent(offset, clientSize, scrollSize, event)
     }
 
-    export function getOffset() {
-        if (pageMode) {
-            return document.documentElement[directionKey] || document.body[directionKey]
-        } else {
-            return root ? Math.ceil(root[directionKey]) : 0
-        }
-    }
-
-    export function getClientSize() {
-        const key = isHorizontal ? "clientWidth" : "clientHeight"
-        if (pageMode) {
-            return document.documentElement[key] || document.body[key]
-        } else {
-            return root ? Math.ceil(root[key]) : 0
-        }
-    }
-
-    export function getScrollSize() {
-        const key = isHorizontal ? "scrollWidth" : "scrollHeight"
-        if (pageMode) {
-            return document.documentElement[key] || document.body[key]
-        } else {
-            return root ? Math.ceil(root[key]) : 0
-        }
-    }
-
-    export function updatePageModeFront() {
-        if (root) {
-            const rect = root.getBoundingClientRect()
-            const {defaultView} = root.ownerDocument
-            const offsetFront = isHorizontal ? (rect.left + defaultView.pageXOffset) : (rect.top + defaultView.pageYOffset)
-            virtual.updateParam("slotHeaderSize", offsetFront)
-        }
-    }
-
     function emitEvent(offset, clientSize, scrollSize, event) {
         dispatch("scroll", {event, range: virtual.getRange()})
 
@@ -132,44 +174,6 @@
             dispatch("top")
         } else if (virtual.isBehind() && (offset + clientSize + bottomThreshold >= scrollSize)) {
             dispatch("bottom")
-        }
-    }
-
-    export function scrollToOffset(offset) {
-        if (pageMode) {
-            document.body[directionKey] = offset
-            document.documentElement[directionKey] = offset
-        } else if (root) {
-            root[directionKey] = offset
-        }
-    }
-
-    export function scrollToIndex(index) {
-        // scroll to bottom
-        if (index >= data.length - 1) {
-            scrollToBottom()
-        } else {
-            const offset = virtual.getOffset(index)
-            scrollToOffset(offset)
-        }
-    }
-
-    /**
-     * set current scroll position to bottom
-     */
-    export function scrollToBottom() {
-        if (shepherd) {
-            const offset = shepherd[isHorizontal ? "offsetLeft" : "offsetTop"]
-            scrollToOffset(offset)
-
-            // check if it's really scrolled to the bottom
-            // maybe list doesn't render and calculate to last range
-            // so we need retry in next event loop until it really at bottom
-            setTimeout(() => {
-                if (getOffset() + getClientSize() < getScrollSize()) {
-                    scrollToBottom()
-                }
-            }, 3)
         }
     }
 
@@ -182,11 +186,8 @@
     $: handleDataSourcesChange(data)
 
     async function handleDataSourcesChange(dataSources) {
-        // TODO: fix jump on top added data
-        console.log("data change")
         virtual.updateParam("uniqueIds", getUniqueIdFromDataSources())
         virtual.handleDataSourcesChange()
-        onRangeChanged(range)
     }
 </script>
 
@@ -197,7 +198,7 @@
         </Item>
     {/if}
     <div style="padding: {paddingStyle}">
-        {#each displayItems as data}
+        {#each displayItems as data (data[key])}
             <Item
                     on:resize={(e) => onItemResized(e.detail)}
                     uniqueKey={data[key]}

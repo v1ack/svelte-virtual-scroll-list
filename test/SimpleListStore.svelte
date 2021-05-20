@@ -1,32 +1,47 @@
 <script>
     import {tick} from "svelte"
+    import {flip} from "svelte/animate"
+    import {writable} from "svelte/store"
     import VirtualScroll from "../src/VirtualScroll.svelte"
     import {createSequenceGenerator, randomInteger} from "./mock"
     import TestItem from "./TestItem.svelte"
 
     const getItemId = createSequenceGenerator()
+    const getNotificationId = createSequenceGenerator()
 
-    let items = []
-    addItems(true, 100)
+    let items = writable([])
+    addItems(true, 1000)
 
     let list
+    let notifications = {}
 
     function addItems(top = true, count = 10) {
         let new_items = []
         for (let i = 0; i < count; i++)
             new_items.push({uniqueKey: getItemId(), height: randomInteger(20, 60)})
         if (top)
-            items = [...new_items, ...items]
+            $items = [...new_items, ...$items]
         else
-            items = [...items, ...new_items]
+            $items = [...$items, ...new_items]
+    }
+
+    function addNotification(e) {
+        const id = getNotificationId()
+        notifications[id] = e
+        setTimeout(() => {
+            delete notifications[id]
+            notifications = notifications
+        }, 5000)
     }
 </script>
 <div class="vs">
     <VirtualScroll
             bind:this={list}
-            data={items}
+            data={$items}
             key="uniqueKey"
             let:data
+            on:bottom={() => addNotification("bottom")}
+            on:top={() => addNotification("top")}
     >
         <div slot="header">
             This is a header
@@ -46,7 +61,11 @@
         list.scrollToBottom()
     }}>Add 1 and scroll to bottom
 </button>
-<button on:click={()=>items[15].height = randomInteger(10, 150)}>Random height for 15 item</button>
+<div>
+    {#each Object.entries(notifications) as [id, action] (id)}
+        <div animate:flip>{action} </div>
+    {/each}
+</div>
 
 
 <style>
