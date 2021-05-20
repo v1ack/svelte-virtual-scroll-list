@@ -134,10 +134,11 @@
         return data.map((dataSource) => dataSource[key])
     }
 
-    function onItemResized({id, size, type}) {
+    function onItemResized(event) {
+        const {id, size, type} = event.detail
         if (type === "item")
             virtual.saveSize(id, size)
-        else {
+        else if (type === "slot") {
             if (id === "header")
                 virtual.updateParam("slotHeaderSize", size)
             else if (id === "footer")
@@ -179,13 +180,16 @@
 
     $: scrollToOffset(offset)
     $: scrollToIndex(start)
-    $: {
+    $: handleKeepsChange(keeps)
+
+    function handleKeepsChange(keeps) {
         virtual.updateParam("keeps", keeps)
         virtual.handleSlotSizeChange()
     }
+
     $: handleDataSourcesChange(data)
 
-    async function handleDataSourcesChange(dataSources) {
+    async function handleDataSourcesChange(data) {
         virtual.updateParam("uniqueIds", getUniqueIdFromDataSources())
         virtual.handleDataSourcesChange()
     }
@@ -200,7 +204,7 @@
     <div style="padding: {paddingStyle}">
         {#each displayItems as data (data[key])}
             <Item
-                    on:resize={(e) => onItemResized(e.detail)}
+                    on:resize={onItemResized}
                     uniqueKey={data[key]}
                     horizontal={isHorizontal}
                     type="item">

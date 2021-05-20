@@ -11,7 +11,7 @@
     "virtual-list",
     "virtual-scroll"
   ],
-  "version": "1.0.6",
+  "version": "1.0.7",
   "scripts": {
     "build": "rollup -c rollup/rollup.config.js",
     "build:dev": "rollup -c rollup/rollup.config.dev.js",
