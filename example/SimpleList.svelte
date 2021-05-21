@@ -1,5 +1,4 @@
 <script>
-    import {tick} from "svelte"
     import {flip} from "svelte/animate"
     import VirtualScroll from "../src/VirtualScroll.svelte"
     import {createSequenceGenerator, randomInteger} from "./mock"
@@ -40,22 +39,16 @@
             on:top={() => addNotification("top")}
     >
         <div slot="header">
-            This is a header
+            This is a header set via slot
         </div>
         <TestItem {...data}/>
         <div slot="footer">
-            This is a footer
+            This is a footer set via slot
         </div>
     </VirtualScroll>
 </div>
-<button on:click={() => addItems()}>Add 10 to bottom</button>
+<button on:click={() => list.scrollToOffset(0)}>To top</button>
 <button on:click={list.scrollToBottom}>To bottom</button>
-<button on:click={async () => {
-        addItems(1)
-        await tick()
-        list.scrollToBottom()
-    }}>Add 1 and scroll to bottom
-</button>
 <div>
     {#each Object.entries(notifications) as [id, action] (id)}
         <div animate:flip>{action} </div>
@@ -66,5 +59,9 @@
 <style>
     .vs {
         height: 300px;
+    }
+
+    .vs :global(.virtual-scroll-item) {
+        padding: 4px 0;
     }
 </style>

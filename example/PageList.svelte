@@ -1,5 +1,4 @@
 <script>
-    import {tick} from "svelte"
     import VirtualScroll from "../src/VirtualScroll.svelte"
     import {createSequenceGenerator, randomInteger} from "./mock"
     import TestItem from "./TestItem.svelte"
@@ -22,16 +21,8 @@
     }
 </script>
 <div class="overflow-buttons">
-    <button on:click={addItems}>Add 10 to top</button>
-    <button on:click={() => addItems(false)}>Add 10 to bottom</button>
     <button on:click={() => list.scrollToOffset(0)}>To top</button>
     <button on:click={list.scrollToBottom}>To bottom</button>
-    <button on:click={async () => {
-        addItems(false, 1)
-        await tick()
-        list.scrollToBottom()
-    }}>Add 1 and scroll to bottom
-    </button>
 </div>
 <div class="vs">
     <VirtualScroll
@@ -50,10 +41,11 @@
         </div>
     </VirtualScroll>
 </div>
-
+<div>end</div>
 <style>
     .overflow-buttons {
-        top: 0;
+        z-index: 2;
+        top: 10px;
         position: sticky;
     }
 </style>

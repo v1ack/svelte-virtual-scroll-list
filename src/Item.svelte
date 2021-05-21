@@ -30,6 +30,6 @@
     }
 </script>
 
-<div bind:this={itemDiv}>
+<div bind:this={itemDiv} class="virtual-scroll-item">
     <slot/>
 </div>

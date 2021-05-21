@@ -6,30 +6,46 @@
 
     const getItemId = createSequenceGenerator()
 
-    let items = []
-    addItems(false, 70)
+    let loading = false
+    let items = itemsFactory(70)
 
     let list
 
-    function addItems(top = true, count = 10) {
+    function itemsFactory(count = 10) {
         let new_items = []
         for (let i = 0; i < count; i++)
             new_items.push({uniqueKey: getItemId(), height: randomInteger(20, 60)})
+        return new_items
+    }
+
+    async function asyncAddItems(top = true, count = 10) {
+        if (loading) return
+        loading = true
+        await asyncTimeout(1000)
+
+        let new_items = itemsFactory(count)
+
         if (top) {
             items = [...new_items, ...items]
 
+            // to save position on adding items to top we need to calculate
+            // new top offset based on added items
+            //
+            // it works ONLY if newly added items was rendered
             tick().then(() => {
                 const sids = new_items.map(i => i.uniqueKey)
                 const offset = sids.reduce((previousValue, currentSid) => previousValue + list.getSize(currentSid), 0)
                 list.scrollToOffset(offset)
             })
-        } else
+        } else {
             items = [...items, ...new_items]
-    }
 
-    async function asyncAddItems(top = true, count = 10) {
-        await asyncTimeout(1000)
-        addItems(top, count)
+            // timeout needs because sometimes when you scroll down `scroll` event fires twice
+            // and changes list.virtual.direction from BEHIND to FRONT
+            // maybe there is a better solution
+            setTimeout(() => list.scrollToOffset(list.getOffset() + 1), 3)
+        }
+        loading = false
     }
 </script>
 
@@ -52,15 +68,8 @@
         </div>
     </VirtualScroll>
 </div>
-<button on:click={addItems}>Add 10 to top</button>
-<button on:click={() => addItems(false)}>Add 10 to bottom</button>
+<button on:click={() => list.scrollToOffset(0)}>To Top</button>
 <button on:click={list.scrollToBottom}>To bottom</button>
-<button on:click={async () => {
-        addItems(false, 1)
-        await tick()
-        list.scrollToBottom()
-    }}>Add 1 and scroll to bottom
-</button>
 
 <style>
     .vs {

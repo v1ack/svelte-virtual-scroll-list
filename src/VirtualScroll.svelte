@@ -100,7 +100,7 @@
             // maybe list doesn't render and calculate to last range
             // so we need retry in next event loop until it really at bottom
             setTimeout(() => {
-                if (getOffset() + getClientSize() < getScrollSize()) {
+                if (getOffset() + getClientSize() + 1 < getScrollSize()) {
                     scrollToBottom()
                 }
             }, 3)
@@ -144,7 +144,7 @@
             else if (id === "footer")
                 virtual.updateParam("slotFooterSize", size)
 
-            virtual.handleSlotSizeChange()
+            // virtual.handleSlotSizeChange()
         }
     }
 

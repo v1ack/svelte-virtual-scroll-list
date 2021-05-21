@@ -27,12 +27,12 @@ function serve() {
 }
 
 export default {
-    input: "test/main.js",
+    input: "example/main.js",
     output: {
         sourcemap: true,
         format: "es",
         name: "app",
-        file: "public/build/bundle.js",
+        file: "example/public/build/bundle.js",
     },
     plugins: [
         svelte({
@@ -46,7 +46,7 @@ export default {
             dedupe: ["svelte"],
         }),
         !production && serve(),
-        !production && livereload("public"),
+        !production && livereload("example/public"),
     ],
     watch: {
         clearScreen: false,

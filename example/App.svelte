@@ -17,7 +17,8 @@
 </script>
 
 <main>
-    <h1>svelte-virtual-scroll-list example</h1>
+    <h1>svelte-virtual-scroll-list example
+    </h1>
     <div class="page-selector-container">
         {#each pages as page}
         <span
@@ -26,6 +27,7 @@
                 class:active={currentPage.name === page.name}
         >{page.name}</span>
         {/each}
+        <a class="source" href="https://github.com/v1ack/svelte-virtual-scroll-list/tree/master/example">Source</a>
     </div>
     <svelte:component this={currentPage.component}/>
 </main>
@@ -43,12 +45,20 @@
 
     .page-selector {
         margin-right: 10px;
-        text-decoration: underline;
         cursor: pointer;
         color: blue;
     }
 
+    .page-selector:hover {
+        text-decoration: underline;
+    }
+
     .page-selector.active {
         font-weight: bold;
+    }
+
+    .source {
+        float: right;
+        color: blue;
     }
 </style>

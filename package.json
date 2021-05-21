@@ -16,7 +16,7 @@
     "build": "rollup -c rollup/rollup.config.js",
     "build:dev": "rollup -c rollup/rollup.config.dev.js",
     "dev": "rollup -c rollup/rollup.config.dev.js -w",
-    "start:dev": "sirv public --no-clear"
+    "start:dev": "sirv example/public --no-clear"
   },
   "repository": {
     "type": "git",

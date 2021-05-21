@@ -1,5 +1,5 @@
 /node_modules/
-/public/build/
+/example/public/build/
 dist/
 .idea/
 .DS_Store
