@@ -1,12 +1,14 @@
 import svelte from "rollup-plugin-svelte"
+import sveld from "sveld"
+import pkg from "../package.json"
 
 export default {
-    input: "src/index.js",
+    input: pkg.svelte,
     output: {
         sourcemap: true,
         format: "es",
         name: "app",
-        file: "index.js",
+        file: pkg.module,
     },
     plugins: [
         svelte({
@@ -15,5 +17,6 @@ export default {
                 dev: false,
             },
         }),
+        sveld(),
     ],
 }

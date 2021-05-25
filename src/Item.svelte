@@ -7,6 +7,7 @@
 
     let resizeObserver
     let itemDiv
+    let previousSize
 
     const dispatch = createEventDispatcher()
     const shapeKey = horizontal ? "offsetWidth" : "offsetHeight"
@@ -26,7 +27,10 @@
     })
 
     function dispatchSizeChange() {
-        dispatch("resize", {id: uniqueKey, size: itemDiv ? itemDiv[shapeKey] : 0, type})
+        const size = itemDiv ? itemDiv[shapeKey] : 0
+        if (size === previousSize) return
+        previousSize = size
+        dispatch("resize", {id: uniqueKey, size, type})
     }
 </script>
 

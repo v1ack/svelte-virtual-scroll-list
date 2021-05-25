@@ -3,15 +3,53 @@
     import Item from "./Item.svelte"
     import {createEventDispatcher, onDestroy, onMount} from "svelte"
 
+    /**
+     * Unique key for getting data from `data`
+     * @type {string}
+     */
     export let key = "id"
+    /**
+     * Source for list
+     * @type {Array<any>}
+     */
     export let data
+    /**
+     * Count of rendered items
+     * @type {number}
+     */
     export let keeps = 30
+    /**
+     * Estimate size of each item, needs for smooth scrollbar
+     * @type {number}
+     */
     export let estimateSize = 50
+    /**
+     * Scroll direction
+     * @type {boolean}
+     */
     export let isHorizontal = false
+    /**
+     * scroll position start index
+     */
     export let start = 0
+    /**
+     * scroll position offset
+     */
     export let offset = 0
+    /**
+     * Let virtual list using global document to scroll through the list
+     * @type {boolean}
+     */
     export let pageMode = false
+    /**
+     * The threshold to emit `top` event, attention to multiple calls.
+     * @type {number}
+     */
     export let topThreshold = 0
+    /**
+     * The threshold to emit `bottom` event, attention to multiple calls.
+     * @type {number}
+     */
     export let bottomThreshold = 0
 
     let displayItems = []
@@ -30,14 +68,26 @@
     let shepherd
     const dispatch = createEventDispatcher()
 
+    /**
+     * @param id {number}
+     * @returns {number}
+     */
     export function getSize(id) {
         return virtual.sizes.get(id)
     }
 
+    /**
+     * Count of items
+     * @returns {number}
+     */
     export function getSizes() {
         return virtual.sizes.size
     }
 
+    /**
+     *
+     * @returns {number}
+     */
     export function getOffset() {
         if (pageMode) {
             return document.documentElement[directionKey] || document.body[directionKey]
@@ -46,6 +96,10 @@
         }
     }
 
+    /**
+     *
+     * @returns {number}
+     */
     export function getClientSize() {
         const key = isHorizontal ? "clientWidth" : "clientHeight"
         if (pageMode) {
@@ -55,6 +109,10 @@
         }
     }
 
+    /**
+     *
+     * @returns {number}
+     */
     export function getScrollSize() {
         const key = isHorizontal ? "scrollWidth" : "scrollHeight"
         if (pageMode) {
@@ -73,6 +131,10 @@
         }
     }
 
+    /**
+     *
+     * @param offset {number}
+     */
     export function scrollToOffset(offset) {
         if (pageMode) {
             document.body[directionKey] = offset
@@ -82,6 +144,10 @@
         }
     }
 
+    /**
+     *
+     * @param index {number}
+     */
     export function scrollToIndex(index) {
         if (index >= data.length - 1) {
             scrollToBottom()

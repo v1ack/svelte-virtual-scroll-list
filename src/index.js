@@ -1,1 +1,4 @@
-export {default as default} from "./VirtualScroll.svelte"
+import VirtualScroll from "./VirtualScroll.svelte"
+
+export {VirtualScroll}
+export default VirtualScroll

@@ -1,6 +1,7 @@
 /node_modules/
 /example/public/build/
 dist/
+types/
+lib/
 .idea/
 .DS_Store
-index.js*
