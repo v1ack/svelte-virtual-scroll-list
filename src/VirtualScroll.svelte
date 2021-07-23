@@ -268,13 +268,13 @@
         </Item>
     {/if}
     <div style="padding: {paddingStyle}">
-        {#each displayItems as data (data[key])}
+        {#each displayItems as dataItem (dataItem[key])}
             <Item
                     on:resize={onItemResized}
-                    uniqueKey={data[key]}
+                    uniqueKey={dataItem[key]}
                     horizontal={isHorizontal}
                     type="item">
-                <slot {data}/>
+                <slot data={dataItem}/>
             </Item>
         {/each}
     </div>
