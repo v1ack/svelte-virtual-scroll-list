@@ -226,7 +226,7 @@
         const scrollSize = getScrollSize()
 
         // iOS scroll-spring-back behavior will make direction mistake
-        if (offset < 0 || (offset + clientSize > scrollSize + 1) || !scrollSize) {
+        if (offset < 0 || (offset + clientSize > scrollSize) || !scrollSize) {
             return
         }
 
