@@ -69,8 +69,7 @@
     const dispatch = createEventDispatcher()
 
     /**
-     * @param id {number}
-     * @returns {number}
+     * @type {(id: number) => number}
      */
     export function getSize(id) {
         return virtual.sizes.get(id)
@@ -78,15 +77,14 @@
 
     /**
      * Count of items
-     * @returns {number}
+     * @type {() => number}
      */
     export function getSizes() {
         return virtual.sizes.size
     }
 
     /**
-     *
-     * @returns {number}
+     * @type {() => number}
      */
     export function getOffset() {
         if (pageMode) {
@@ -97,8 +95,7 @@
     }
 
     /**
-     *
-     * @returns {number}
+     * @type {() => number}
      */
     export function getClientSize() {
         const key = isHorizontal ? "clientWidth" : "clientHeight"
@@ -110,8 +107,7 @@
     }
 
     /**
-     *
-     * @returns {number}
+     * @type {() => number}
      */
     export function getScrollSize() {
         const key = isHorizontal ? "scrollWidth" : "scrollHeight"
@@ -122,6 +118,9 @@
         }
     }
 
+    /**
+     * @type {() => void}
+     */
     export function updatePageModeFront() {
         if (root) {
             const rect = root.getBoundingClientRect()
@@ -132,8 +131,7 @@
     }
 
     /**
-     *
-     * @param offset {number}
+     * @type {(offset: number) => number}
      */
     export function scrollToOffset(offset) {
         if (pageMode) {
@@ -145,8 +143,7 @@
     }
 
     /**
-     *
-     * @param index {number}
+     * @type {(index: number) => void}
      */
     export function scrollToIndex(index) {
         if (index >= data.length - 1) {
@@ -157,13 +154,16 @@
         }
     }
 
+    /**
+     * @type {() => void}
+     */
     export function scrollToBottom() {
         if (shepherd) {
             const offset = shepherd[isHorizontal ? "offsetLeft" : "offsetTop"]
             scrollToOffset(offset)
 
             // check if it's really scrolled to the bottom
-            // maybe list doesn't render and calculate to last range
+            // maybe list doesn't render and calculate to last range,
             // so we need retry in next event loop until it really at bottom
             setTimeout(() => {
                 if (getOffset() + getClientSize() + 1 < getScrollSize()) {
