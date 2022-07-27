@@ -87,7 +87,7 @@
      * @type {() => number}
      */
     export function getOffset() {
-        if (pageMode) {
+        if (pageMode && !(typeof window === 'undefined')) {
             return document.documentElement[directionKey] || document.body[directionKey]
         } else {
             return root ? Math.ceil(root[directionKey]) : 0
@@ -99,7 +99,7 @@
      */
     export function getClientSize() {
         const key = isHorizontal ? "clientWidth" : "clientHeight"
-        if (pageMode) {
+        if (pageMode && !(typeof window === 'undefined')) {
             return document.documentElement[key] || document.body[key]
         } else {
             return root ? Math.ceil(root[key]) : 0
@@ -111,7 +111,7 @@
      */
     export function getScrollSize() {
         const key = isHorizontal ? "scrollWidth" : "scrollHeight"
-        if (pageMode) {
+        if (pageMode && !(typeof window === 'undefined')) {
             return document.documentElement[key] || document.body[key]
         } else {
             return root ? Math.ceil(root[key]) : 0
@@ -134,7 +134,7 @@
      * @type {(offset: number) => number}
      */
     export function scrollToOffset(offset) {
-        if (pageMode) {
+        if (pageMode && !(typeof window === 'undefined')) {
             document.body[directionKey] = offset
             document.documentElement[directionKey] = offset
         } else if (root) {
@@ -180,7 +180,7 @@
             scrollToOffset(offset)
         }
 
-        if (pageMode) {
+        if (pageMode && !(typeof window === 'undefined')) {
             updatePageModeFront()
 
             document.addEventListener("scroll", onScroll, {
@@ -191,7 +191,7 @@
 
     onDestroy(() => {
         virtual.destroy()
-        if (pageMode) {
+        if (pageMode && !(typeof window === 'undefined')) {
             document.removeEventListener("scroll", onScroll)
         }
     })
