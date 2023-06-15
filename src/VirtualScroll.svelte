@@ -1,7 +1,7 @@
 <script>
     import Virtual from "./virtual"
     import Item from "./Item.svelte"
-    import {createEventDispatcher, onDestroy, onMount} from "svelte"
+    import {createEventDispatcher, onDestroy, onMount, afterUpdate} from "svelte"
 
     /**
      * Unique key for getting data from `data`
@@ -188,6 +188,8 @@
             })
         }
     })
+
+    afterUpdate(() => dispatch("updated"))
 
     onDestroy(() => {
         virtual.destroy()
