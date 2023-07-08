@@ -1,8 +1,8 @@
 <script>
     import {tick} from "svelte"
-    import VirtualScroll from "../src/VirtualScroll.svelte"
-    import {asyncTimeout, createSequenceGenerator, randomInteger} from "./mock"
-    import TestItem from "./TestItem.svelte"
+    import {VirtualScroll} from "$lib"
+    import {asyncTimeout, createSequenceGenerator, randomInteger} from "../mock"
+    import TestItem from "../TestItem.svelte"
 
     const getItemId = createSequenceGenerator()
 

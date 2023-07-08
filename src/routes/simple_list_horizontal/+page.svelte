@@ -1,8 +1,8 @@
 <script>
     import {flip} from "svelte/animate"
-    import VirtualScroll from "../src/VirtualScroll.svelte"
-    import {createSequenceGenerator, randomInteger} from "./mock"
-    import TestItem from "./TestItem.svelte"
+    import {VirtualScroll} from "$lib"
+    import {createSequenceGenerator, randomInteger} from "../mock"
+    import TestItem from "./TestItemHorizontal.svelte"
 
     const getItemId = createSequenceGenerator()
     const getNotificationId = createSequenceGenerator()
@@ -16,7 +16,7 @@
     function addItems(count = 10) {
         let new_items = []
         for (let i = 0; i < count; i++)
-            new_items.push({uniqueKey: getItemId(), height: randomInteger(20, 260)})
+            new_items.push({uniqueKey: getItemId(), width: randomInteger(40, 200)})
         items = [...items, ...new_items]
     }
 
@@ -34,6 +34,7 @@
             bind:this={list}
             data={items}
             key="uniqueKey"
+            isHorizontal={true}
             let:data
             on:bottom={() => addNotification("bottom")}
             on:top={() => addNotification("top")}
@@ -62,6 +63,15 @@
     }
 
     .vs :global(.virtual-scroll-item) {
-        padding: 4px 0;
+        padding: 0 4px;
+    }
+
+    .vs :global(.virtual-scroll-wrapper) {
+        display: flex;
+        flex-direction: row;
+    }
+    .vs :global(.virtual-scroll-root){
+        display: flex;
+        flex-direction: row;
     }
 </style>
