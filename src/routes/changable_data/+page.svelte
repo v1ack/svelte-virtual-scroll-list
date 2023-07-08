@@ -1,12 +1,13 @@
 <script>
-    import VirtualScroll from "../src/VirtualScroll.svelte"
-    import {createSequenceGenerator, randomInteger} from "./mock"
-    import TestItem from "./TestItem.svelte"
+    import {tick} from "svelte"
+    import {VirtualScroll} from "$lib"
+    import {createSequenceGenerator, randomInteger} from "../mock"
+    import TestItem from "../TestItem.svelte"
 
     const getItemId = createSequenceGenerator()
 
     let items = []
-    addItems(true, 1000)
+    addItems(true, 100)
 
     let list
 
@@ -20,17 +21,12 @@
             items = [...items, ...new_items]
     }
 </script>
-<div class="overflow-buttons">
-    <button on:click={() => list.scrollToOffset(0)}>To top</button>
-    <button on:click={list.scrollToBottom}>To bottom</button>
-</div>
 <div class="vs">
     <VirtualScroll
             bind:this={list}
             data={items}
             key="uniqueKey"
             let:data
-            pageMode={true}
     >
         <div slot="header">
             This is a header
@@ -41,11 +37,20 @@
         </div>
     </VirtualScroll>
 </div>
+<button on:click={addItems}>Add 10 to top</button>
+<button on:click={() => addItems(false)}>Add 10 to bottom</button>
+<button on:click={list.scrollToBottom}>To bottom</button>
+<button on:click={async () => {
+        addItems(false, 1)
+        await tick()
+        list.scrollToBottom()
+    }}>Add 1 and scroll to bottom
+</button>
+<button on:click={()=>items[15].height = randomInteger(10, 150)}>Random height for 15 item</button>
+
 
 <style>
-    .overflow-buttons {
-        z-index: 2;
-        top: 10px;
-        position: sticky;
+    .vs {
+        height: 300px;
     }
 </style>

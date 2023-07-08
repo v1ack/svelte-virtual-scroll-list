@@ -38,7 +38,6 @@ export default class {
         this.sizes = new Map()
         this.firstRangeTotalSize = 0
         this.firstRangeAverageSize = 0
-        this.lastCalcIndex = 0
         this.fixedSizeValue = 0
         this.calcType = CALC_TYPE.INIT
 
@@ -321,4 +320,8 @@ export default class {
     getEstimateSize() {
         return this.isFixedType() ? this.fixedSizeValue : (this.firstRangeAverageSize || this.param.estimateSize)
     }
+}
+
+export function isBrowser() {
+    return typeof document !== "undefined"
 }

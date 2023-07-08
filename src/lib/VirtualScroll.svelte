@@ -1,5 +1,5 @@
 <script>
-    import Virtual from "./virtual"
+    import Virtual, {isBrowser} from "./virtual"
     import Item from "./Item.svelte"
     import {createEventDispatcher, onDestroy, onMount} from "svelte"
 
@@ -87,7 +87,7 @@
      * @type {() => number}
      */
     export function getOffset() {
-        if (pageMode) {
+        if (pageMode && isBrowser()) {
             return document.documentElement[directionKey] || document.body[directionKey]
         } else {
             return root ? Math.ceil(root[directionKey]) : 0
@@ -99,7 +99,7 @@
      */
     export function getClientSize() {
         const key = isHorizontal ? "clientWidth" : "clientHeight"
-        if (pageMode) {
+        if (pageMode && isBrowser()) {
             return document.documentElement[key] || document.body[key]
         } else {
             return root ? Math.ceil(root[key]) : 0
@@ -111,7 +111,7 @@
      */
     export function getScrollSize() {
         const key = isHorizontal ? "scrollWidth" : "scrollHeight"
-        if (pageMode) {
+        if (pageMode && isBrowser()) {
             return document.documentElement[key] || document.body[key]
         } else {
             return root ? Math.ceil(root[key]) : 0
@@ -122,7 +122,7 @@
      * @type {() => void}
      */
     export function updatePageModeFront() {
-        if (root) {
+        if (root && isBrowser()) {
             const rect = root.getBoundingClientRect()
             const {defaultView} = root.ownerDocument
             const offsetFront = isHorizontal ? (rect.left + defaultView.pageXOffset) : (rect.top + defaultView.pageYOffset)
@@ -131,9 +131,10 @@
     }
 
     /**
-     * @type {(offset: number) => number}
+     * @type {(offset: number) => void}
      */
     export function scrollToOffset(offset) {
+        if (!isBrowser()) return
         if (pageMode) {
             document.body[directionKey] = offset
             document.documentElement[directionKey] = offset
@@ -191,7 +192,7 @@
 
     onDestroy(() => {
         virtual.destroy()
-        if (pageMode) {
+        if (pageMode && isBrowser()) {
             document.removeEventListener("scroll", onScroll)
         }
     })
@@ -261,13 +262,13 @@
     }
 </script>
 
-<div bind:this={root} on:scroll={onScroll} style="overflow-y: auto; height: inherit">
+<div bind:this={root} on:scroll={onScroll} style="overflow-y: auto; height: inherit" class="virtual-scroll-root">
     {#if $$slots.header}
         <Item on:resize={onItemResized} type="slot" uniqueKey="header">
             <slot name="header"/>
         </Item>
     {/if}
-    <div style="padding: {paddingStyle}">
+    <div style="padding: {paddingStyle}" class="virtual-scroll-wrapper">
         {#each displayItems as dataItem (dataItem[key])}
             <Item
                     on:resize={onItemResized}

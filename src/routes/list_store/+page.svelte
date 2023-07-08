@@ -2,9 +2,9 @@
     import {tick} from "svelte"
     import {flip} from "svelte/animate"
     import {writable} from "svelte/store"
-    import VirtualScroll from "../src/VirtualScroll.svelte"
-    import {createSequenceGenerator, randomInteger} from "./mock"
-    import TestItem from "./TestItem.svelte"
+    import {VirtualScroll} from "$lib"
+    import {createSequenceGenerator, randomInteger} from "../mock"
+    import TestItem from "../TestItem.svelte"
 
     const getItemId = createSequenceGenerator()
     const getNotificationId = createSequenceGenerator()
