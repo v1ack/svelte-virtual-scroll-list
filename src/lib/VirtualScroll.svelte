@@ -269,13 +269,13 @@
         </Item>
     {/if}
     <div style="padding: {paddingStyle}" class="virtual-scroll-wrapper">
-        {#each displayItems as dataItem (dataItem[key])}
+        {#each displayItems as dataItem, dataIndex (dataItem[key])}
             <Item
                     on:resize={onItemResized}
                     uniqueKey={dataItem[key]}
                     horizontal={isHorizontal}
                     type="item">
-                <slot data={dataItem}/>
+                <slot data={dataItem} index={dataIndex} />
             </Item>
         {/each}
     </div>
