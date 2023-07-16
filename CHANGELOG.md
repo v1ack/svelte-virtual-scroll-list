@@ -1,5 +1,9 @@
 # svelte-virtual-scroll-list changelog
 
+## 1.3.0
+
+- Expose `index` from VirtualScroll component
+
 ## 1.2.0
 
 - Move example to SvelteKit
