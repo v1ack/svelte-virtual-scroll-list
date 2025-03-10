@@ -24,6 +24,7 @@ export default class {
     offset = 0
     direction = ""
     range
+    sizes = new Map()
 
     constructor(param, callUpdate) {
         this.init(param, callUpdate)

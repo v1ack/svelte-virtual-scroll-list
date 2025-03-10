@@ -1,5 +1,5 @@
-<script>
-    import Virtual, {isBrowser} from "./virtual"
+<script lang="ts" generics="T">
+    import Virtual, {isBrowser} from "./virtual.js"
     import Item from "./Item.svelte"
     import {createEventDispatcher, onDestroy, onMount} from "svelte"
 
@@ -7,12 +7,12 @@
      * Unique key for getting data from `data`
      * @type {string}
      */
-    export let key = "id"
+    export let key: keyof T = <keyof T>"id"
     /**
      * Source for list
      * @type {Array<any>}
      */
-    export let data
+    export let data: T[]
     /**
      * Count of rendered items
      * @type {number}
@@ -52,9 +52,9 @@
      */
     export let bottomThreshold = 0
 
-    let displayItems = []
-    let paddingStyle
-    let directionKey = isHorizontal ? "scrollLeft" : "scrollTop"
+    let displayItems: T[] = []
+    let paddingStyle: string
+    let directionKey = isHorizontal ? "scrollLeft" as const : "scrollTop" as const
     let range = null
     let virtual = new Virtual({
         slotHeaderSize: 0,
@@ -64,14 +64,14 @@
         buffer: Math.round(keeps / 3), // recommend for a third of keeps
         uniqueIds: getUniqueIdFromDataSources(),
     }, onRangeChanged)
-    let root
-    let shepherd
+    let root: HTMLDivElement
+    let shepherd: HTMLDivElement
     const dispatch = createEventDispatcher()
 
     /**
      * @type {(id: number) => number}
      */
-    export function getSize(id) {
+    export function getSize(id: any) {
         return virtual.sizes.get(id)
     }
 
@@ -125,7 +125,7 @@
         if (root && isBrowser()) {
             const rect = root.getBoundingClientRect()
             const {defaultView} = root.ownerDocument
-            const offsetFront = isHorizontal ? (rect.left + defaultView.pageXOffset) : (rect.top + defaultView.pageYOffset)
+            const offsetFront = isHorizontal ? (rect.left + defaultView!.pageXOffset) : (rect.top + defaultView!.pageYOffset)
             virtual.updateParam("slotHeaderSize", offsetFront)
         }
     }
@@ -133,7 +133,7 @@
     /**
      * @type {(offset: number) => void}
      */
-    export function scrollToOffset(offset) {
+    export function scrollToOffset(offset: number) {
         if (!isBrowser()) return
         if (pageMode) {
             document.body[directionKey] = offset
@@ -146,7 +146,7 @@
     /**
      * @type {(index: number) => void}
      */
-    export function scrollToIndex(index) {
+    export function scrollToIndex(index: number) {
         if (index >= data.length - 1) {
             scrollToBottom()
         } else {
@@ -201,7 +201,7 @@
         return data.map((dataSource) => dataSource[key])
     }
 
-    function onItemResized(event) {
+    function onItemResized(event: CustomEvent<any>) {
         const {id, size, type} = event.detail
         if (type === "item")
             virtual.saveSize(id, size)
@@ -215,13 +215,13 @@
         }
     }
 
-    function onRangeChanged(range_) {
+    function onRangeChanged(range_: any) {
         range = range_
         paddingStyle = paddingStyle = isHorizontal ? `0px ${range.padBehind}px 0px ${range.padFront}px` : `${range.padFront}px 0px ${range.padBehind}px`
         displayItems = data.slice(range.start, range.end + 1)
     }
 
-    function onScroll(event) {
+    function onScroll(event: Event) {
         const offset = getOffset()
         const clientSize = getClientSize()
         const scrollSize = getScrollSize()
@@ -235,7 +235,7 @@
         emitEvent(offset, clientSize, scrollSize, event)
     }
 
-    function emitEvent(offset, clientSize, scrollSize, event) {
+    function emitEvent(offset: number, clientSize: number, scrollSize: number, event: Event) {
         dispatch("scroll", {event, range: virtual.getRange()})
 
         if (virtual.isFront() && !!data.length && (offset - topThreshold <= 0)) {
@@ -249,14 +249,14 @@
     $: scrollToIndex(start)
     $: handleKeepsChange(keeps)
 
-    function handleKeepsChange(keeps) {
+    function handleKeepsChange(keeps: number) {
         virtual.updateParam("keeps", keeps)
         virtual.handleSlotSizeChange()
     }
 
     $: handleDataSourcesChange(data)
 
-    async function handleDataSourcesChange(data) {
+    async function handleDataSourcesChange(data: T[]) {
         virtual.updateParam("uniqueIds", getUniqueIdFromDataSources())
         virtual.handleDataSourcesChange()
     }
