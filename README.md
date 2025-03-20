@@ -1,31 +1,17 @@
 # svelte-virtual-scroll-list
 
-[![npm](https://img.shields.io/npm/v/svelte-virtual-scroll-list?style=for-the-badge)](https://npmjs.com/package/svelte-virtual-scroll-list/)
+[![npm](https://img.shields.io/npm/v/@josesan9/svelte-virtual-scroll-list?style=for-the-badge)](https://npmjs.com/package/@josesan9/svelte-virtual-scroll-list/)
 
-Svelte implementation of vue library [vue-virtual-scroll-list](https://github.com/tangbc/vue-virtual-scroll-list)
+fork of same library by v1ack [svelte-virtual-scroll-list](https://github.com/v1ack/svelte-virtual-scroll-list)
 
-Virtualized scrolling for big lists
-
----
-**Support dynamic both-directional lists** (see example)
-
----
-
-Online demo: [https://v1ack.github.io/svelte-virtual-scroll-list/](https://v1ack.github.io/svelte-virtual-scroll-list/)
-
-[Simple example in Svelte REPL](https://ru.svelte.dev/repl/eae82aab17b04420885851d58de50a2e?version=3.38.2)
+Virtualized scrolling for big lists. For now this does not support bi-directionality (unlike v1ach's implementation)
 
 # Getting started
 
-## Installing from npm
+`npm i josesan9/svelte-virtual-scroll-list -D`
 
-`npm i svelte-virtual-scroll-list -D`
 
-or
-
-`yarn add svelte-virtual-scroll-list -D`
-
-## Using
+## Usage
 
 ```html
 
@@ -61,7 +47,7 @@ More examples available in `example` folder
 |---------------------------|----------------------------|---------------------|----------------------------------|
 | handle dynamic size data  | +                          | +                   | -                                |
 | scroll methods (to index) | +                          | -                   | +                                |
-| infinity scrolling        | two-directional            | -                   | one-directional with another lib |
+| infinity scrolling        | +                          | -                   | one-directional with another lib |
 | initial scroll position   | +                          | -                   | +                                |
 | sticky items              | -                          | -                   | +                                |
 | top/bottom slots          | +                          | -                   | +                                |
@@ -125,7 +111,13 @@ Access to methods by component binding
 
 ## Additional
 
-### Get index of current rendering items
+### Params passed down to each virtual list item
+
+| param      | description                                          |
+|------------|------------------------------------------------------|
+| data       | data item                                            |
+| index      | index of item (in relation to full list)             |
+| localIndex | index of item (in relation to rendered items only)   |
 
 ```html
 
@@ -134,6 +126,7 @@ Access to methods by component binding
         key="id"
         let:data
         let:index
+        let:localIndex
 >
     <div>
         {data.text} {index}

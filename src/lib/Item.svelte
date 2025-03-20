@@ -1,13 +1,13 @@
-<script>
+<script lang="ts" generics="T">
     import {afterUpdate, createEventDispatcher, onDestroy, onMount} from "svelte"
 
     export let horizontal = false
-    export let uniqueKey
+    export let uniqueKey: any
     export let type = "item"
 
-    let resizeObserver
-    let itemDiv
-    let previousSize
+    let resizeObserver: ResizeObserver | null
+    let itemDiv: HTMLDivElement
+    let previousSize: number
 
     const dispatch = createEventDispatcher()
     const shapeKey = horizontal ? "offsetWidth" : "offsetHeight"
