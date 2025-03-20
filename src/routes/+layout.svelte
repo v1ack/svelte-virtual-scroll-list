@@ -35,7 +35,7 @@
                 class:active={current_path === page.component}
         >{page.name}</a>
         {/each}
-        <a class="source" href="https://github.com/v1ack/svelte-virtual-scroll-list/tree/master/src/routes/{current_path}">Source</a>
+        <a class="source" href="https://github.com/josesan9/svelte-virtual-scroll-list/tree/master/src/routes/{current_path}">Source</a>
     </div>
     <slot></slot>
 </main>

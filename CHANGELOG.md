@@ -1,14 +1,9 @@
 # svelte-virtual-scroll-list changelog
 
-## 1.3.0
+## 1.0.1
 
-- Expose `index` from VirtualScroll component
+- Fixed issue where data changes wouldn't refresh the item contents
 
-## 1.2.0
+## 1.0.0
 
-- Move example to SvelteKit
-- Package distribution by SvelteKit too
-- Add classes on VS wrappers
-- Add example for horizontal scroll
-- Fix pageMode with SSR
-- Support Svelte 4
+- Forked and heavily modified from original package svelte-virtual-scroll-list

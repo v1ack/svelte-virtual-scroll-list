@@ -1,5 +1,5 @@
-<script>
-    import Virtual, {isBrowser} from "./virtual"
+<script lang="ts" generics="T">
+    import { isBrowser, Virtual } from "./virtual.js"
     import Item from "./Item.svelte"
     import {createEventDispatcher, onDestroy, onMount} from "svelte"
 
@@ -7,22 +7,24 @@
      * Unique key for getting data from `data`
      * @type {string}
      */
-    export let key = "id"
+    export let key: keyof T | typeof keyFn
+    
+    let keyFn: (item: T, index: number) => any = key instanceof Function ? key : (item: T) => item[key]
     /**
      * Source for list
      * @type {Array<any>}
      */
-    export let data
+    export let data: T[]
     /**
-     * Count of rendered items
+     * Count of items rendered outside of view (for each direction)
      * @type {number}
      */
-    export let keeps = 30
+    export let overflow = 5
     /**
      * Estimate size of each item, needs for smooth scrollbar
      * @type {number}
      */
-    export let estimateSize = 50
+    export let estimateSize: number | ((item: T) => number) = 50
     /**
      * Scroll direction
      * @type {boolean}
@@ -42,36 +44,35 @@
      */
     export let pageMode = false
     /**
-     * The threshold to emit `top` event, attention to multiple calls.
+     * The threshold to emit `top` event in px, attention to multiple calls.
      * @type {number}
      */
     export let topThreshold = 0
     /**
-     * The threshold to emit `bottom` event, attention to multiple calls.
+     * The threshold to emit `bottom` event in px, attention to multiple calls.
      * @type {number}
      */
     export let bottomThreshold = 0
 
-    let displayItems = []
-    let paddingStyle
-    let directionKey = isHorizontal ? "scrollLeft" : "scrollTop"
-    let range = null
+    let displayItems: T[] = []
+    let paddingStyle: string
+    let directionKey = isHorizontal ? "scrollLeft" as const : "scrollTop" as const
     let virtual = new Virtual({
         slotHeaderSize: 0,
         slotFooterSize: 0,
-        keeps: keeps,
-        estimateSize: estimateSize,
-        buffer: Math.round(keeps / 3), // recommend for a third of keeps
-        uniqueIds: getUniqueIdFromDataSources(),
-    }, onRangeChanged)
-    let root
-    let shepherd
+        overflow: overflow,
+        data: data,
+    }, onRangeChanged, keyFn, estimateSize)
+    let range = virtual.getRange()
+    let root: HTMLDivElement
+    let shepherd: HTMLDivElement
+    let resizeObserver = new ResizeObserver(() => onScroll())
     const dispatch = createEventDispatcher()
 
     /**
      * @type {(id: number) => number}
      */
-    export function getSize(id) {
+    export function getSize(id: any) {
         return virtual.sizes.get(id)
     }
 
@@ -125,7 +126,7 @@
         if (root && isBrowser()) {
             const rect = root.getBoundingClientRect()
             const {defaultView} = root.ownerDocument
-            const offsetFront = isHorizontal ? (rect.left + defaultView.pageXOffset) : (rect.top + defaultView.pageYOffset)
+            const offsetFront = isHorizontal ? (rect.left + defaultView!.pageXOffset) : (rect.top + defaultView!.pageYOffset)
             virtual.updateParam("slotHeaderSize", offsetFront)
         }
     }
@@ -133,7 +134,7 @@
     /**
      * @type {(offset: number) => void}
      */
-    export function scrollToOffset(offset) {
+    export function scrollToOffset(offset: number) {
         if (!isBrowser()) return
         if (pageMode) {
             document.body[directionKey] = offset
@@ -146,7 +147,7 @@
     /**
      * @type {(index: number) => void}
      */
-    export function scrollToIndex(index) {
+    export function scrollToIndex(index: number) {
         if (index >= data.length - 1) {
             scrollToBottom()
         } else {
@@ -175,6 +176,7 @@
     }
 
     onMount(() => {
+        onScroll()
         if (start) {
             scrollToIndex(start)
         } else if (offset) {
@@ -188,20 +190,17 @@
                 passive: false,
             })
         }
+        resizeObserver.observe(root);
     })
 
     onDestroy(() => {
-        virtual.destroy()
+        resizeObserver.disconnect();
         if (pageMode && isBrowser()) {
             document.removeEventListener("scroll", onScroll)
         }
     })
 
-    function getUniqueIdFromDataSources() {
-        return data.map((dataSource) => dataSource[key])
-    }
-
-    function onItemResized(event) {
+    function onItemResized(event: CustomEvent<any>) {
         const {id, size, type} = event.detail
         if (type === "item")
             virtual.saveSize(id, size)
@@ -215,50 +214,39 @@
         }
     }
 
-    function onRangeChanged(range_) {
+    function onRangeChanged(range_: any) {
         range = range_
         paddingStyle = paddingStyle = isHorizontal ? `0px ${range.padBehind}px 0px ${range.padFront}px` : `${range.padFront}px 0px ${range.padBehind}px`
         displayItems = data.slice(range.start, range.end + 1)
     }
 
-    function onScroll(event) {
+    function onScroll(event?: Event) {
         const offset = getOffset()
         const clientSize = getClientSize()
         const scrollSize = getScrollSize()
-
-        // iOS scroll-spring-back behavior will make direction mistake
-        if (offset < 0 || (offset + clientSize > scrollSize) || !scrollSize) {
-            return
-        }
-
-        virtual.handleScroll(offset)
-        emitEvent(offset, clientSize, scrollSize, event)
+        virtual.handleScroll(offset, clientSize)
+        if (event)
+            emitEvent(offset, clientSize, scrollSize, event)
     }
 
-    function emitEvent(offset, clientSize, scrollSize, event) {
-        dispatch("scroll", {event, range: virtual.getRange()})
+    function emitEvent(offset: number, clientSize: number, scrollSize: number, event: Event) {
+        const range = virtual.getRange()
+        dispatch("scroll", {event, range: range})
 
-        if (virtual.isFront() && !!data.length && (offset - topThreshold <= 0)) {
+        if (offset <= topThreshold) {
             dispatch("top")
-        } else if (virtual.isBehind() && (offset + clientSize + bottomThreshold >= scrollSize)) {
+        } else if ((scrollSize - offset) - clientSize >= bottomThreshold) {
             dispatch("bottom")
         }
     }
 
     $: scrollToOffset(offset)
     $: scrollToIndex(start)
-    $: handleKeepsChange(keeps)
-
-    function handleKeepsChange(keeps) {
-        virtual.updateParam("keeps", keeps)
-        virtual.handleSlotSizeChange()
-    }
 
     $: handleDataSourcesChange(data)
 
-    async function handleDataSourcesChange(data) {
-        virtual.updateParam("uniqueIds", getUniqueIdFromDataSources())
-        virtual.handleDataSourcesChange()
+    async function handleDataSourcesChange(data: T[]) {
+        virtual.updateParam("data", data)
     }
 </script>
 
@@ -269,13 +257,13 @@
         </Item>
     {/if}
     <div style="padding: {paddingStyle}" class="virtual-scroll-wrapper">
-        {#each displayItems as dataItem, dataIndex (dataItem[key])}
+        {#each displayItems as dataItem, dataIndex (keyFn(dataItem, dataIndex + range.start))}
             <Item
                     on:resize={onItemResized}
-                    uniqueKey={dataItem[key]}
+                    uniqueKey={keyFn(dataItem, dataIndex + range.start)}
                     horizontal={isHorizontal}
                     type="item">
-                <slot data={dataItem} index={dataIndex} />
+                <slot data={dataItem} index={dataIndex + range.start} localIndex={dataIndex} />
             </Item>
         {/each}
     </div>
