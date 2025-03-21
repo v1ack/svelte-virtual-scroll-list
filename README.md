@@ -1,5 +1,9 @@
 # svelte-virtual-scroll-list
 
+> ⚠️ No longer maintained
+> 
+> please reffer to fork https://github.com/ArcticKeaton/svelte-virtual-scroll-list
+
 [![npm](https://img.shields.io/npm/v/svelte-virtual-scroll-list?style=for-the-badge)](https://npmjs.com/package/svelte-virtual-scroll-list/)
 
 Svelte implementation of vue library [vue-virtual-scroll-list](https://github.com/tangbc/vue-virtual-scroll-list)
